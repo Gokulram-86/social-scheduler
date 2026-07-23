@@ -1,0 +1,16 @@
+@import "./fonts.css";
+@import "tailwindcss";
+
+
+@theme {
+  --color-primary: #000000;
+  --color-secondary: #3D0000;
+  --color-accent: #950101;
+  --color-background: #D7FF2F;
+
+   --font-logo: "Lobster Two", cursive;
+   --font-inter: "Inter Tight", sans-serif;
+
+   --color-lime-accent: #D7FF2F;
+  
+}
