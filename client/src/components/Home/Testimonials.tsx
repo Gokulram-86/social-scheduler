@@ -47,7 +47,7 @@ export default function Testimonials() {
                       </p>
                       {/* Author */}
                       <div className="flex items-center gap-3 border-t border-zinc-800 pt-4">
-                        <div className={`size-10 rounded-full bg-gradient-to-br ${t.avatarBg} flex items-center justify-center text-sm font-semibold text-white shadow-md`} >
+                        <div className={`size-10 rounded-full bg-linear-to-br ${t.avatarBg} flex items-center justify-center text-sm font-semibold text-white shadow-md`} >
                           {t.avatar}
                         </div>
                         <div>
