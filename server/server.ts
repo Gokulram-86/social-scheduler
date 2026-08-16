@@ -2,6 +2,8 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from 'express';
 import cors from "cors";
 import connectDB from "./config/db.js";
+import authRouter from "./routes/authRoutes.js";
+import socialAuthRouter from "./routes/socialAuthRoutes.js";
 
 const app = express();
 
@@ -17,6 +19,9 @@ const port = process.env.PORT || 3000;
 app.get('/', (_req: Request, res: Response) => {
     res.send('Server is Live!');
 });
+
+app.use("/api/auth/", authRouter); // now we have created the API for user registration and login (next we have to create authentication for social media accounts)
+app.use('/api/oauth', socialAuthRouter);
 
 // Global Error Handler
 
