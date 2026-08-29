@@ -12,6 +12,7 @@ import { Post } from '../models/Post.js';
 import { Account } from '../models/Account.js';
 import zernio from '../config/zernio.js';
 import { ActivityLog } from '../models/ActivityLog.js';
+import { platform } from 'node:os';
 
 export const initScheduler = () =>{
     cron.schedule("* * * * *", async ()=>{  // for every minute
@@ -32,7 +33,7 @@ export const initScheduler = () =>{
                         continue;
                     }
                     const zernioPlatforms = accounts.map((acc)=>({
-                        tform: acc.platform as any,
+                        platform: acc.platform as any,
                         accountId: acc.zernioAccountId!
                     }))
                     const payload = {

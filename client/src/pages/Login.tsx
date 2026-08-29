@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   MailIcon,
@@ -6,6 +6,9 @@ import {
   ArrowRightIcon,
   User2Icon,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [loginState, setLoginState] = useState(true);
@@ -13,19 +16,27 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const {login, user} = useAuth();
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { data } = await api.post(`/api/auth/${loginState ? "login" : "register" }`, {name, email, password})
+      login(data, data.token );
       navigate("/dashboard");
-    }, 1000);
+    } catch (error : any) {
+      toast.error(error.response?.data?.message || error?.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(()=>{
+    if(user) navigate("/dashboard") // whenerver we open the login page and user is already logged in then it will navigate the users on dashboard.
+  },[user])
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-zinc-950 flex items-center justify-center px-5 py-10">

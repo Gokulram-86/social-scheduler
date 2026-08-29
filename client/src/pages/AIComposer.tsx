@@ -1,16 +1,9 @@
 import { useEffect, useState } from "react";
-import { dummyGenerationData, PLATFORMS } from "../assets/assets";
-import {
-  ArrowRightIcon,
-  CalendarIcon,
-  ClockIcon,
-  HistoryIcon,
-  Loader2Icon,
-  LoaderIcon,
-  TimerIcon,
-  Wand2Icon,
-  XIcon,
-} from "lucide-react";
+import { PLATFORMS } from "../assets/assets";
+import { ArrowRightIcon, CalendarIcon, ClockIcon, HistoryIcon, Loader2Icon, LoaderIcon, TimerIcon, Wand2Icon, XIcon } from "lucide-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
+
 
 const AIComposer = () => {
   const [prompt, setPrompt] = useState("");
@@ -27,7 +20,13 @@ const AIComposer = () => {
   const [scheduling, setScheduling] = useState(false);
 
   const fetchGenerations = async () => {
-    setGenerations(dummyGenerationData);
+    try {
+      const { data } = await api.get("api/posts/generations");
+      setGenerations(data);
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message);
+      
+    }
   };
 
   useEffect(() => {
@@ -35,28 +34,59 @@ const AIComposer = () => {
   }, []);
 
   const handleGenerate = async () => {
+    if(!prompt){
+      toast.error("Please enter a prompt");
+      return;
+    }
     setLoading(true);
-
-    setTimeout(() => {
+    try {
+      const { data } = await api.post("/api/posts/generate", {prompt, tone, generateImage});
+      setGenerations([data, ...generations]);
+      setActiveScheduler(data)
+      toast.success("Content generated!")
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || error.message);
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleSchedule = async () => {
+    if(!activeScheduler) return;
+    if(selectedPlatforms.length === 0){
+      toast.error("Select at least one platform");
+      return;
+    }
+    if(!scheduledDate || !scheduledTime){
+      toast.error("Select date and time");
+      return;  
+    }
+
+    const scheduledFor = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
     setScheduling(true);
 
-    setTimeout(() => {
+    try {
+      await api.post("/api/posts", {
+        content: activeScheduler.content,
+        mediaUrl: activeScheduler.mediaUrl,
+        mediaType: activeScheduler.mediaType,
+        platforms: selectedPlatforms,
+        scheduledFor,
+        status: "scheduled",
+      })
+      toast.success("AI Post scheduled");
+      setActiveScheduler(null);
+      setSelectedPlatforms([]);
+      setScheduledDate("");
+      setScheduledTime("");
+    } catch (error : any) {
+      toast.error(error?.response?.data?.message || "Failed to schedule");
+    } finally{
       setScheduling(false);
-    }, 2000);
+    }
   };
 
-  const tones = [
-    "Professional",
-    "Creative",
-    "Funny",
-    "Minimalist",
-    "Excited",
-  ];
+  const tones = [ "Professional", "Creative", "Funny", "Minimalist", "Excited" ];
 
   return (
     <div className="mx-auto max-w-5xl space-y-12 pb-20 animate-in fade-in duration-700">
